@@ -40,6 +40,50 @@ $(document).ready(function(){
         //menggunakan selector ID gender-select
         //kemudian replace html didalam komponen yang
         //ada di id gender-select menjadi gender_opt
-        $('#gender-select').html(gender_opt);
-    })
+        $('#gender-select').html('<option value="semua">semua</option>'+gender_opt);
+
+       
+
+    });
+
+        // saring gender
+        $('#gender-select').on('change', function(){
+            updateList($(this).val())
+        });
+
+
+
+
+        function updateList(opt){
+            var _url2=_url;
+
+            if(opt !== 'semua'){
+                _url2=_url + '?gender=' +opt;
+            }
+            var result='';
+
+            $.get  (_url2, function (data){
+                $.each (data, function (key, items){
+                    //untuk menampung gender sementara pd loop
+                    _gend=items.gender;
+                    
+                    result += '<div>'+'<p><b>'+items.name+'</b></p>'+
+                    '<p>'+_gend+'</p>'+'</div>';
+    
+                   
+                });
+    
+                //menggunakan selector ID mhs-list
+                //kemudian replace html didalam komponen yang
+                //ada di id mhs-list menjadi result
+                $('#mhs-list').html(result);
+    
+            });
+
+
+        }
+
+
+
+        
 });
