@@ -12,7 +12,8 @@ $(document).ready(function(){
     //menampung semua gender dr API
     var gender =[];
 
-    $.get  (_url, function (data){
+    // $.get  (_url, function (data){
+        function renderPage(data){
         $.each (data, function (key, items){
             //untuk menampung gender sementara pd loop
             _gend=items.gender;
@@ -40,11 +41,32 @@ $(document).ready(function(){
         //menggunakan selector ID gender-select
         //kemudian replace html didalam komponen yang
         //ada di id gender-select menjadi gender_opt
-        $('#gender-select').html('<option value="semua">semua</option>'+gender_opt);
+        $('#gender-select').html('<option value="semua">semua</option>'+gender_opt);   
+    // });
+    }
 
-       
-
+    var networkDataReceive = false;
+    // cek di cache, apakah sudah ada belum, ngambil data dr service online
+    var networkUpdate = fetch(_url).then(function(response){
+        return response.json();
+    }).then(function(data){
+        networkDataReceive = true;
+        renderPage(data)
     });
+
+    // fetch data dari cache
+    caches.match(_url).then(function(response){
+        if(!response) throw Error("no data o cache");
+        return renderPage.json();
+    }).then(function(data){
+        if(!networkDataReceive){
+            renderPage(data);
+            console.log('render data from cache');
+        }
+    }).catch(function(){
+        return networkUpdate;
+    })
+
 
         // saring gender
         $('#gender-select').on('change', function(){
@@ -79,11 +101,15 @@ $(document).ready(function(){
                 $('#mhs-list').html(result);
     
             });
-
-
         }
-
-
-
-        
 });
+
+if ('serviceWorker' in navigator){
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/serviceworker.js').then(function (reg) {
+            console.log('SW regis sukses dgn skop',reg.scope)
+        }, function (err) {
+            console.log('SW regis failed',err);
+        })
+    })
+} 
